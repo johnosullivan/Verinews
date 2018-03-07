@@ -41,6 +41,10 @@ contract News is OwnerShip {
     uint public downvotes;
     address[] public upvoters;
     address[] public downvoters;
+    uint public start_time = now;
+
+    address alarm;
+
     // The news data
     string public news;
     // Constructor for the child news contract
@@ -51,11 +55,17 @@ contract News is OwnerShip {
         // Sets the values from the parameters
         news = _news;
         publisher = _publisher;
+
+        bytes4 sig = bytes4(keccak256("stopVoting()"));
+        uint targetBlock = block.number + 1;
+        bytes4 scheduleCallSig = bytes4(keccak256("scheduleCall(bytes4,uint256)"));
+        alarm.call(scheduleCallSig, address(this), sig, targetBlock);
     }
     // Gets the balance of the news contracts
     function getBalance() public constant returns (uint) {
         return address(this).balance;
     }
+
     // Only is the voters has not voted they maybe upvote
     function upvote() onlyHasNotVoted public payable {
         upvotes++;
@@ -65,5 +75,9 @@ contract News is OwnerShip {
     function downvote() onlyHasNotVoted public payable {
         downvotes++;
         voters[msg.sender] = true;
+    }
+
+    function stopVoting() public {
+       news = "winnner picked";
     }
 }

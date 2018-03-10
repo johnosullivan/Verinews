@@ -41,7 +41,10 @@ contract News is OwnerShip {
     uint public downvotes;
     address[] public upvoters;
     address[] public downvoters;
-    uint public start_time = now;
+    uint256 public start_time = now;
+    uint256 public lastvoter_timestamp;
+    uint256 public end_time = start_time + 2 minutes;
+    bool public votingOpened = true;
 
     address alarm;
 
@@ -55,11 +58,6 @@ contract News is OwnerShip {
         // Sets the values from the parameters
         news = _news;
         publisher = _publisher;
-
-        bytes4 sig = bytes4(keccak256("stopVoting()"));
-        uint targetBlock = block.number + 1;
-        bytes4 scheduleCallSig = bytes4(keccak256("scheduleCall(bytes4,uint256)"));
-        alarm.call(scheduleCallSig, address(this), sig, targetBlock);
     }
     // Gets the balance of the news contracts
     function getBalance() public constant returns (uint) {
@@ -67,17 +65,38 @@ contract News is OwnerShip {
     }
 
     // Only is the voters has not voted they maybe upvote
-    function upvote() onlyHasNotVoted public payable {
-        upvotes++;
-        voters[msg.sender] = true;
+    function upvote(uint256 _datetime) onlyHasNotVoted public payable {
+        //require(_datetime > start_time);
+        //require(_datetime > lastvoter_timestamp);
+        if (_datetime < end_time) {
+            upvotes++;
+            voters[msg.sender] = true;
+            lastvoter_timestamp = _datetime;
+        } else {
+            done();
+        }
     }
     // Only is the voters has not voted they maybe upvote
-    function downvote() onlyHasNotVoted public payable {
-        downvotes++;
-        voters[msg.sender] = true;
+    function downvote(uint256 _datetime) onlyHasNotVoted public payable {
+        //require(_datetime > start_time);
+        //require(_datetime > lastvoter_timestamp);
+        if (_datetime < end_time) {
+            downvotes++;
+            voters[msg.sender] = true;
+            lastvoter_timestamp = _datetime;
+        } else {
+            done();
+        }
     }
 
-    function stopVoting() public {
-       news = "winnner picked";
+    function done() public {
+        news = "done";
+        //Money logic needs to be added
     }
+
+    function isFake() public constant returns (bool) {
+        return downvotes > upvotes;
+    }
+
+
 }

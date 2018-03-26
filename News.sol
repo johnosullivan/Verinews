@@ -4,9 +4,13 @@ contract NewsManager {
     // Constructor for the news manager
     function NewsManager() public { }
     // All the news articles
-    address[] news_contracts;
+    address[] public news_contracts;
     // Event trigged when news is added
     event AddNews(address news, address publisher);
+    // Get count of contracts
+    function numberOfNewsStories() public constant returns (uint256) {
+        return news_contracts.length;
+    }
     // Add news
     function addNews(
         string _news

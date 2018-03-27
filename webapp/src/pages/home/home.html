@@ -15,7 +15,7 @@
     <p>{{item.news}}</p>
   </ion-card-content>
 
-  <ion-row>
+  <ion-row *ngIf="!item.voted">
     <ion-col>
       <button ion-button icon-right clear small>
         <ion-icon name="thumbs-up"></ion-icon>

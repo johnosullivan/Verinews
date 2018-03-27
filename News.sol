@@ -93,6 +93,11 @@ contract News is OwnerShip {
         }
     }
 
+    // Gets the news details
+    function details() public constant returns (string _news,bool _voted, uint _balance) {
+        return (news,voters[msg.sender],address(this).balance);
+    }
+
     function done() public {
         news = "done";
         //Money logic needs to be added

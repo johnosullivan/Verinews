@@ -6,6 +6,26 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding style="background-color:#eee">
-  <button ion-button color="dark" full (click)="test()">Test</button>
+<ion-content style="background-color:#eee">
+  <ion-list>
+
+    <ion-card *ngFor="let item of feed">
+
+  <ion-card-content>
+    <p>{{item.news}}</p>
+  </ion-card-content>
+
+  <ion-row>
+    <ion-col>
+      <button ion-button icon-right clear small>
+        <ion-icon name="thumbs-up"></ion-icon>
+      </button>
+      <button ion-button icon-right clear small>
+        <ion-icon name="thumbs-down"></ion-icon>
+      </button>
+    </ion-col>
+  </ion-row>
+
+</ion-card>
+  </ion-list>
 </ion-content>

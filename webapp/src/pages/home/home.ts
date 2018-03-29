@@ -23,8 +23,8 @@ export class HomePage {
   feed:any;
 
   constructor(public navCtrl: NavController, public modalController:ModalController) {
-    this.publicKey = "0x627306090abaB3A6e1400e9345bC60c78a8BEf57";
-    this.privateKey = "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
+    this.publicKey = "0xf17f52151EbEF6C7334FAD080c5704D77216b732";
+    this.privateKey = "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f";
 
     this.feed = [];
 
@@ -48,45 +48,74 @@ export class HomePage {
 
     console.log(myCallData);
 
-    const gasPrice = web3.eth.getGasPrice();
-    const gasPriceHex = web3.utils.toHex(gasPrice);
-    const gasLimitHex = web3.utils.toHex(3000000000);
 
-    const nonce = web3.eth.getTransactionCount(web3.eth.defaultAccount);
-    const nonceHex = web3.utils.toHex(nonce);
-    console.log("nonceHex: ", nonceHex);
-    const rawTx = {
-      nonce: nonceHex,
-      gasPrice: gasPriceHex,
-      gasLimit: gasLimitHex,
+
+
+    var nonce;
+    web3.eth.getTransactionCount(web3.eth.defaultAccount).then((val) => {
+      nonce = val;
+
+      web3.eth.getGasPrice().then((gasPrice) => {
+
+        const gasPriceHex = web3.utils.toHex(gasPrice);
+        const gasLimitHex = web3.utils.toHex(300000);
+
+        var value = web3.utils.toWei('1', 'ether');
+
+        const rawTx = {
+          "from": publicKey,
+          "nonce": "0x" + nonce.toString(16),
+          "gasPrice": gasPriceHex,
+          "gasLimit": gasLimitHex,
+          "to": address,
+          "value": web3.utils.toHex(value),
+          "data": myCallData
+        };
+
+        console.log(rawTx);
+        const tx = new Tx(rawTx);
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        console.log("serializedTx", serializedTx);
+        function waitForTransactionReceipt(hash) {
+        console.log('waiting for contract to be mined');
+        const receipt = web3.eth.getTransactionReceipt(hash);
+        // If no receipt, try again in 1s
+          if (receipt == null) {
+            setTimeout(() => {
+                waitForTransactionReceipt(hash);
+            }, 1000);
+          } else {
+            console.log('contract address: ' + receipt['contractAddress']);
+          }
+        }
+
+        web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
+        if (err) { console.log(err); return; }
+
+          waitForTransactionReceipt(hash);
+        });
+
+      });
+
+
+
+
+
+    });
+    /*const rawTx = {
+      nonce: web3.utils.toHex(web3.eth.getTransactionCount(publicKey)),
+      gasLimit: web3.utils.toHex(800000),
+      gasPrice: web3.utils.toHex(20000000000),
       data: myCallData,
       to: address,
-      from: web3.eth.defaultAccount,
+      chainId: 1,
       value: web3.utils.toWei("2.0", "ether")
-    };
-    console.log(rawTx);
-    const tx = new Tx(rawTx);
-    tx.sign(privateKey);
-    const serializedTx = tx.serialize();
-    console.log("serializedTx", serializedTx);
-    function waitForTransactionReceipt(hash) {
-    console.log('waiting for contract to be mined');
-    const receipt = web3.eth.getTransactionReceipt(hash);
-    // If no receipt, try again in 1s
-      if (receipt == null) {
-        setTimeout(() => {
-            waitForTransactionReceipt(hash);
-        }, 1000);
-      } else {
-        console.log('contract address: ' + receipt['contractAddress']);
-      }
-    }
+    };*/
 
-    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
-    if (err) { console.log(err); return; }
 
-      waitForTransactionReceipt(hash);
-    });
+
+
 
     //let votemodel = this.modalController.create(VotePage, { type: type });
     //votemodel.present();
@@ -100,7 +129,7 @@ export class HomePage {
 
     var publicKey = this.publicKey;
 
-    var newManager = "0xb9a219631aed55ebc3d998f17c3840b7ec39c0cc";
+    var newManager = "0x8cdaf0cd259887258bc13a92c0a6da92698644c0";
 
     const provider = new Web3.providers.HttpProvider(web3url);
 

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController } from 'ionic-angular';
+import { HttpClient } from '@angular/common/http';
 
 import Web3 from 'web3';
 import { VotePage } from '../vote/vote';
@@ -17,27 +18,32 @@ import ipfsAPI from 'ipfs-api';
 })
 export class HomePage {
 
-  publicKey:any;
-  privateKey:any;
+  publicKey: any;
+  privateKey: any;
   web3url = "http://localhost:8545";
-  newManager = "0x30753e4a8aad7f8597332e813735def5dd395028";
+  ipfsurl = "http://127.0.0.1:8080";
+  newManager = "0xdda6327139485221633a1fcd65f4ac932e60a2e1";
   story_data = "";
-  ipfs:any;
+  ipfs: any;
 
-  newmanager_abi = [{"constant":true,"inputs":[],"name":"numberOfNewsStories","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_news","type":"string"}],"name":"addNews","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"news_contracts","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"news","type":"address"},{"indexed":false,"name":"publisher","type":"address"}],"name":"AddNews","type":"event"}];
+  newmanager_abi = [{ "constant": true, "inputs": [], "name": "numberOfNewsStories", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_news", "type": "string" }], "name": "addNews", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "", "type": "uint256" }], "name": "news_contracts", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": false, "name": "news", "type": "address" }, { "indexed": false, "name": "publisher", "type": "address" }], "name": "AddNews", "type": "event" }];
 
 
-  news_abi = [{"constant":false,"inputs":[{"name":"_datetime","type":"uint256"}],"name":"upvote","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"getBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"end_time","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"lastvoter_timestamp","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"downvotes","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"upvoters","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"news","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"details","outputs":[{"name":"_news","type":"string"},{"name":"_voted","type":"bool"},{"name":"_balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newBuyer","type":"address"}],"name":"transferOrderOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"isFake","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"start_time","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"publisher","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"upvotes","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"voters","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"done","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"votingOpened","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_datetime","type":"uint256"}],"name":"downvote","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"downvoters","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_publisher","type":"address"},{"name":"_news","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"}];
+  news_abi = [{ "constant": false, "inputs": [{ "name": "_datetime", "type": "uint256" }], "name": "upvote", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "getBalance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "end_time", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "lastvoter_timestamp", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "downvotes", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "", "type": "uint256" }], "name": "upvoters", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "news", "outputs": [{ "name": "", "type": "string" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "details", "outputs": [{ "name": "_news", "type": "string" }, { "name": "_voted", "type": "bool" }, { "name": "_balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "newBuyer", "type": "address" }], "name": "transferOrderOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "isFake", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "start_time", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "publisher", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "upvotes", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "", "type": "address" }], "name": "voters", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [], "name": "done", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "votingOpened", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_datetime", "type": "uint256" }], "name": "downvote", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [{ "name": "", "type": "uint256" }], "name": "downvoters", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [{ "name": "_publisher", "type": "address" }, { "name": "_news", "type": "string" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }];
 
-  feed:any;
+  feed: any;
 
-  constructor(public navCtrl: NavController, public modalController:ModalController) {
+  constructor(
+    public navCtrl: NavController,
+    public modalController: ModalController,
+    public http: HttpClient) {
+
     this.publicKey = "0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5";
     this.privateKey = "aa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7";
 
     this.feed = [];
 
-    this.ipfs = ipfsAPI('localhost', '5001', {protocol: 'http'});
+    this.ipfs = ipfsAPI('localhost', '5001', { protocol: 'http' });
 
   }
 
@@ -46,12 +52,12 @@ export class HomePage {
     var paddress = this.publicKey;
     var datatemp = _data;
     console.log(datatemp);
-    return new Promise(function (resolve, reject) {
-      var ran_id = randomid(50,"aA0");
+    return new Promise(function(resolve, reject) {
+      var ran_id = randomid(50, "aA0");
       var data = new Buffer(datatemp);
       var path = paddress + "_" + ran_id + ".json";
       const stream = self.ipfs.files.addReadableStream();
-      stream.on('data', function (file) {
+      stream.on('data', function(file) {
         resolve(file);
       });
       stream.write({ path: path, content: data });
@@ -59,71 +65,92 @@ export class HomePage {
     });
   }
 
+  isJson(item) {
+    item = typeof item !== "string"
+      ? JSON.stringify(item)
+      : item;
+
+    try {
+      item = JSON.parse(item);
+    } catch (e) {
+      return false;
+    }
+
+    if (typeof item === "object" && item !== null) {
+      return true;
+    }
+
+    return false;
+  }
+
   news_ipfs_submit() {
 
+    if (this.isJson(this.story_data)) {
 
-    this.new(this.story_data).then((file) => {
-      var hash = file['hash'];
+      this.new(this.story_data).then((file) => {
+        var hash = file['hash'];
 
-      var privateKey = new Buffer(this.privateKey, 'hex')
-      var publicKey = this.publicKey;
-      const provider = new Web3.providers.HttpProvider(this.web3url);
-      var web3 = new Web3(provider);
-      web3.eth.defaultAccount = publicKey;
+        var privateKey = new Buffer(this.privateKey, 'hex')
+        var publicKey = this.publicKey;
+        const provider = new Web3.providers.HttpProvider(this.web3url);
+        var web3 = new Web3(provider);
+        web3.eth.defaultAccount = publicKey;
 
-      var news_manager = new web3.eth.Contract(this.newmanager_abi, this.newManager);
-      console.log(news_manager);
+        var news_manager = new web3.eth.Contract(this.newmanager_abi, this.newManager);
+        console.log(news_manager);
 
-      var calldata = news_manager.methods.addNews(hash).encodeABI();
-      console.log(hash);
-      var nonce;
+        var calldata = news_manager.methods.addNews(hash).encodeABI();
+        console.log(hash);
+        var nonce;
 
 
-      web3.eth.getTransactionCount(web3.eth.defaultAccount).then((val) => {
-        nonce = val;
+        web3.eth.getTransactionCount(web3.eth.defaultAccount).then((val) => {
+          nonce = val;
 
-        web3.eth.getGasPrice().then((gasPrice) => {
+          web3.eth.getGasPrice().then((gasPrice) => {
 
-          const gasPriceHex = web3.utils.toHex(gasPrice);
-          const gasLimitHex = web3.utils.toHex(3000000);
+            const gasPriceHex = web3.utils.toHex(gasPrice);
+            const gasLimitHex = web3.utils.toHex(3000000);
 
-          console.log("gasPrice: ",gasPrice);
-          console.log("nonce: ", nonce);
+            console.log("gasPrice: ", gasPrice);
+            console.log("nonce: ", nonce);
 
-          const rawTx = {
-            "from": "0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5",
-            "nonce": "0x" + nonce.toString(16),
-            "gasPrice": gasPriceHex,
-            "gasLimit": gasLimitHex,
-            "to": "0x30753e4a8aad7f8597332e813735def5dd395028",
-            "data": calldata
-          };
+            const rawTx = {
+              "from": publicKey,
+              "nonce": "0x" + nonce.toString(16),
+              "gasPrice": gasPriceHex,
+              "gasLimit": gasLimitHex,
+              "to": this.newManager,
+              "data": calldata
+            };
 
-          console.log(rawTx);
-          var pKey = new Buffer("aa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7", 'hex')
-          const tx = new Tx(rawTx);
-          tx.sign(pKey);
-          const serializedTx = tx.serialize();
-          console.log("serializedTx", serializedTx);
+            console.log(rawTx);
+            const tx = new Tx(rawTx);
+            tx.sign(privateKey);
+            const serializedTx = tx.serialize();
+            console.log("serializedTx", serializedTx);
 
-          function waitForTransactionReceipt(hash) {
-          const receipt = web3.eth.getTransactionReceipt(hash);
-            if (receipt == null) {
-              setTimeout(() => {   waitForTransactionReceipt(hash); }, 1000);
-            } else {
+            function waitForTransactionReceipt(hash) {
+              const receipt = web3.eth.getTransactionReceipt(hash);
+              if (receipt == null) {
+                setTimeout(() => { waitForTransactionReceipt(hash); }, 1000);
+              } else {
+              }
             }
-          }
-          web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
-          if (err) { console.log(err); return; }
-            waitForTransactionReceipt(hash);
+            web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
+              if (err) { console.log(err); return; }
+              waitForTransactionReceipt(hash);
+            });
+
+
           });
-
-
         });
+
+
       });
 
+    }
 
-    });
   }
 
   vote(type, address) {
@@ -171,12 +198,12 @@ export class HomePage {
         const serializedTx = tx.serialize();
         console.log("serializedTx", serializedTx);
         function waitForTransactionReceipt(hash) {
-        console.log('waiting for contract to be mined');
-        const receipt = web3.eth.getTransactionReceipt(hash);
-        // If no receipt, try again in 1s
+          console.log('waiting for contract to be mined');
+          const receipt = web3.eth.getTransactionReceipt(hash);
+          // If no receipt, try again in 1s
           if (receipt == null) {
             setTimeout(() => {
-                waitForTransactionReceipt(hash);
+              waitForTransactionReceipt(hash);
             }, 1000);
           } else {
             console.log('contract address: ' + receipt['contractAddress']);
@@ -184,7 +211,7 @@ export class HomePage {
         }
 
         web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
-        if (err) { console.log(err); return; }
+          if (err) { console.log(err); return; }
 
           waitForTransactionReceipt(hash);
         });
@@ -193,6 +220,17 @@ export class HomePage {
     });
     //let votemodel = this.modalController.create(VotePage, { type: type });
     //votemodel.present();
+  }
+
+  getItemFromIPFS(hash) {
+    console.log(hash);
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.http.get(self.ipfsurl + '/ipfs/' + hash).subscribe(data => {
+        console.log(data);
+        resolve(data);
+      })
+    });
   }
 
   refresh() {
@@ -208,18 +246,23 @@ export class HomePage {
     var contract = new web3.eth.Contract(this.newmanager_abi, this.newManager);
 
     var self = this;
-    contract.methods.numberOfNewsStories().call(function(error, total_numberOfNewsStories){
+    contract.methods.numberOfNewsStories().call(function(error, total_numberOfNewsStories) {
       console.log("total_numberOfNewsStories: ", total_numberOfNewsStories);
       // Gets the articles
       for (var i = 0; i < total_numberOfNewsStories; i++) {
         //Getting article at index
-        contract.methods.news_contracts(i).call(function(error, address){
+        contract.methods.news_contracts(i).call(function(error, address) {
           var current_news = new web3.eth.Contract(self.news_abi, address);
-          current_news.methods.details().call(function(error, details){
-            console.log("details: ", details);
-            console.log("current_news: ", current_news);
-            console.log("address: ", address);
-            self.feed.push({ contract:current_news, address:address, news:details['_news'], balance:details['_balance'], voted:details['_voted'] });
+          current_news.methods.details().call(function(error, details) {
+            var cur_hash = details['_news'];
+            self.getItemFromIPFS(cur_hash).then((data) => {
+              console.log("details: ", details);
+              console.log("current_news: ", current_news);
+              console.log("address: ", address);
+              console.log("data: ", data);
+              self.feed.push({ contract: current_news, address: address, news: data['news'], balance: details['_balance'], voted: details['_voted'] });
+            })
+
           });
         });
       }

@@ -3,6 +3,11 @@
     <ion-title>
       Verinews
     </ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="refresh()">
+        <ion-icon name="refresh"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -17,10 +22,10 @@
 
   <ion-row *ngIf="!item.voted">
     <ion-col>
-      <button ion-button icon-right clear small>
+      <button ion-button icon-right clear small (click)="vote('up',item.address)">
         <ion-icon name="thumbs-up"></ion-icon>
       </button>
-      <button ion-button icon-right clear small>
+      <button ion-button icon-right clear small (click)="vote('down',item.address)">
         <ion-icon name="thumbs-down"></ion-icon>
       </button>
     </ion-col>

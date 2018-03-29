@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, ModalController } from 'ionic-angular';
 
 import Web3 from 'web3';
+import { VotePage } from '../vote/vote';
+import Tx from 'ethereumjs-tx';
+declare const Buffer
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
 export class HomePage {
+
+  publicKey:any;
+  privateKey:any;
 
   newmanager_abi = [{"constant":true,"inputs":[],"name":"numberOfNewsStories","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_news","type":"string"}],"name":"addNews","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"news_contracts","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"news","type":"address"},{"indexed":false,"name":"publisher","type":"address"}],"name":"AddNews","type":"event"}];
 
@@ -16,19 +22,85 @@ export class HomePage {
 
   feed:any;
 
-  constructor(public navCtrl: NavController) {
+  constructor(public navCtrl: NavController, public modalController:ModalController) {
+    this.publicKey = "0x627306090abaB3A6e1400e9345bC60c78a8BEf57";
+    this.privateKey = "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
+
     this.feed = [];
-    this.test();
+
   }
 
-  test() {
+  vote(type, address) {
+    console.log(type);
+    console.log(address);
+
+    var privateKey = new Buffer(this.privateKey, 'hex')
+
+    var web3url = "http://localhost:8545";
+    var publicKey = this.publicKey;
+    const provider = new Web3.providers.HttpProvider(web3url);
+    var web3 = new Web3(provider);
+    web3.eth.defaultAccount = publicKey;
+    var contract = new web3.eth.Contract(this.news_abi, address);
+    console.log(contract);
+
+    var myCallData = contract.methods.upvote(1522298999).encodeABI();
+
+    console.log(myCallData);
+
+    const gasPrice = web3.eth.getGasPrice();
+    const gasPriceHex = web3.utils.toHex(gasPrice);
+    const gasLimitHex = web3.utils.toHex(3000000000);
+
+    const nonce = web3.eth.getTransactionCount(web3.eth.defaultAccount);
+    const nonceHex = web3.utils.toHex(nonce);
+    console.log("nonceHex: ", nonceHex);
+    const rawTx = {
+      nonce: nonceHex,
+      gasPrice: gasPriceHex,
+      gasLimit: gasLimitHex,
+      data: myCallData,
+      to: address,
+      from: web3.eth.defaultAccount,
+      value: web3.utils.toWei("2.0", "ether")
+    };
+    console.log(rawTx);
+    const tx = new Tx(rawTx);
+    tx.sign(privateKey);
+    const serializedTx = tx.serialize();
+    console.log("serializedTx", serializedTx);
+    function waitForTransactionReceipt(hash) {
+    console.log('waiting for contract to be mined');
+    const receipt = web3.eth.getTransactionReceipt(hash);
+    // If no receipt, try again in 1s
+      if (receipt == null) {
+        setTimeout(() => {
+            waitForTransactionReceipt(hash);
+        }, 1000);
+      } else {
+        console.log('contract address: ' + receipt['contractAddress']);
+      }
+    }
+
+    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
+    if (err) { console.log(err); return; }
+
+      waitForTransactionReceipt(hash);
+    });
+
+    //let votemodel = this.modalController.create(VotePage, { type: type });
+    //votemodel.present();
+  }
+
+  refresh() {
+    this.feed = [];
     console.log("Testing...");
 
     var web3url = "http://localhost:8545";
 
-    var publicKey = "0x627306090abaB3A6e1400e9345bC60c78a8BEf57";
+    var publicKey = this.publicKey;
 
-    var newManager = "0xaa588d3737b611bafd7bd713445b314bd453a5c8";
+    var newManager = "0xb9a219631aed55ebc3d998f17c3840b7ec39c0cc";
 
     const provider = new Web3.providers.HttpProvider(web3url);
 

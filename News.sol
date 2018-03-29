@@ -47,7 +47,7 @@ contract News is OwnerShip {
     address[] public downvoters;
     uint256 public start_time = now;
     uint256 public lastvoter_timestamp;
-    uint256 public end_time = start_time + 2 minutes;
+    uint256 public end_time = start_time + 24 hours;
     bool public votingOpened = true;
 
     address alarm;

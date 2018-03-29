@@ -12,9 +12,28 @@
 </ion-header>
 
 <ion-content style="background-color:#eee">
-  <ion-list>
+<ion-list>
+  <ion-card>
 
-    <ion-card *ngFor="let item of feed">
+    <ion-item>
+    <ion-label color="primary" stacked>PublicKey</ion-label>
+    <ion-input type="text" placeholder="" [(ngModel)]="publicKey"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label color="primary" stacked>PrivateKey</ion-label>
+    <ion-input type="text" placeholder="" [(ngModel)]="privateKey"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>News Stories</ion-label>
+    <ion-textarea [(ngModel)]="story_data" name=""></ion-textarea>
+  </ion-item>
+  <div padding>
+    <button ion-button color="light" (click)="news_ipfs_submit()">news_ipfs_submit</button>
+  </div>
+</ion-card>
+
+<ion-card *ngFor="let item of feed">
 
   <ion-card-content>
     <p>{{item.news}}</p>

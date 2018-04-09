@@ -9,7 +9,7 @@ import randomid from 'random-id';
 
 declare const Buffer
 
-//http://127.0.0.1:8080/ipfs/
+//http://127.0.0.1:8080/ipfs/QmaEn3oG9BuneFyd4K81rjbYsmLLEqnHmc32Cbgyz5Pvgw
 import ipfsAPI from 'ipfs-api';
 
 @Component({
@@ -22,7 +22,7 @@ export class HomePage {
   privateKey: any;
   web3url = "http://localhost:8545";
   ipfsurl = "http://127.0.0.1:8080";
-  newManager = "0xdda6327139485221633a1fcd65f4ac932e60a2e1";
+  newManager = "0x8cdaf0cd259887258bc13a92c0a6da92698644c0";
   story_data = "";
   ipfs: any;
 
@@ -47,6 +47,69 @@ export class HomePage {
 
   }
 
+  done(address) {
+    var privateKey = new Buffer(this.privateKey, 'hex')
+    var publicKey = this.publicKey;
+    const provider = new Web3.providers.HttpProvider(this.web3url);
+    var web3 = new Web3(provider);
+    web3.eth.defaultAccount = publicKey;
+    var contract = new web3.eth.Contract(this.news_abi, address);
+    console.log(contract);
+    var myCallData;
+    var seconds = new Date().getTime() / 1000;
+    myCallData = contract.methods.done().encodeABI();
+    console.log(myCallData);
+    var nonce;
+    web3.eth.getTransactionCount(web3.eth.defaultAccount).then((val) => {
+      nonce = val;
+
+      web3.eth.getGasPrice().then((gasPrice) => {
+
+        const gasPriceHex = web3.utils.toHex(gasPrice);
+        const gasLimitHex = web3.utils.toHex(300000);
+
+        var value = web3.utils.toWei('1', 'ether');
+
+        const rawTx = {
+          "from": publicKey,
+          "nonce": "0x" + nonce.toString(16),
+          "gasPrice": gasPriceHex,
+          "gasLimit": gasLimitHex,
+          "to": address,
+          "value": web3.utils.toHex(value),
+          "data": myCallData
+        };
+
+        console.log(rawTx);
+        const tx = new Tx(rawTx);
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        console.log("serializedTx", serializedTx);
+        function waitForTransactionReceipt(hash) {
+          console.log('waiting for contract to be mined');
+          const receipt = web3.eth.getTransactionReceipt(hash);
+          // If no receipt, try again in 1s
+          if (receipt == null) {
+            setTimeout(() => {
+              waitForTransactionReceipt(hash);
+            }, 1000);
+          } else {
+            console.log('contract address: ' + receipt['contractAddress']);
+          }
+        }
+
+        web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), (err, hash) => {
+          if (err) { console.log(err); return; }
+
+          waitForTransactionReceipt(hash);
+        });
+
+      });
+    });
+    //let votemodel = this.modalController.create(VotePage, { type: type });
+    //votemodel.present();
+  }
+
   new(_data) {
     var self = this;
     var paddress = this.publicKey;
@@ -58,6 +121,7 @@ export class HomePage {
       var path = paddress + "_" + ran_id + ".json";
       const stream = self.ipfs.files.addReadableStream();
       stream.on('data', function(file) {
+        console.log(file);
         resolve(file);
       });
       stream.write({ path: path, content: data });

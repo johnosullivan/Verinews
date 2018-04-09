@@ -7,6 +7,8 @@ contract NewsManager {
     address[] public news_contracts;
     // Event trigged when news is added
     event AddNews(address news, address publisher);
+    // All the news stoires for a publisher
+    mapping (address => address[]) public stories;
     // Get count of contracts
     function numberOfNewsStories() public constant returns (uint256) {
         return news_contracts.length;
@@ -17,6 +19,7 @@ contract NewsManager {
     ) public {
         // Creates a child contract
         address c_news = new News(msg.sender,_news);
+        stories[msg.sender].push(c_news);
         // Saves that contract address
         news_contracts.push(c_news);
         // Triggers the event
@@ -47,8 +50,9 @@ contract News is OwnerShip {
     address[] public downvoters;
     uint256 public start_time = now;
     uint256 public lastvoter_timestamp;
-    uint256 public end_time = start_time + 24 hours;
+    uint256 public end_time = start_time + 1 minutes;
     bool public votingOpened = true;
+    mapping (address => uint) public gasPrice;
 
     address alarm;
 
@@ -74,11 +78,18 @@ contract News is OwnerShip {
         //require(_datetime > lastvoter_timestamp);
         if (_datetime < end_time) {
             upvotes++;
+            upvoters.push(msg.sender);
             voters[msg.sender] = true;
             lastvoter_timestamp = _datetime;
         } else {
+            upvotes++;
+            upvoters.push(msg.sender);
+            voters[msg.sender] = true;
+            //upvotes++;
+            //voters[msg.sender] = true;
             done();
         }
+        gasPrice[msg.sender] = msg.gas;
     }
     // Only is the voters has not voted they maybe upvote
     function downvote(uint256 _datetime) onlyHasNotVoted public payable {
@@ -86,11 +97,16 @@ contract News is OwnerShip {
         //require(_datetime > lastvoter_timestamp);
         if (_datetime < end_time) {
             downvotes++;
+            downvoters.push(msg.sender);
             voters[msg.sender] = true;
             lastvoter_timestamp = _datetime;
         } else {
+            downvotes++;
+            downvoters.push(msg.sender);
+            voters[msg.sender] = true;
             done();
         }
+        gasPrice[msg.sender] = msg.gas;
     }
 
     // Gets the news details
@@ -98,12 +114,26 @@ contract News is OwnerShip {
         return (news,voters[msg.sender],address(this).balance);
     }
 
-    function done() public {
-        news = "done";
+    function done() internal {
+        //news = "done";
+        votingOpened = false;
+
+        //address res = upvoters[i];
+        //res.transfer(1 ether);
+        if (upvotes > downvotes) {
+            //true news
+            uint256 value = address(this).balance / upvotes;
+            for(uint i = 0; i < upvotes; i++){
+                upvoters[i].transfer(value);
+            }
+        } else {
+            //false news
+        }
+
         //Money logic needs to be added
     }
 
-    function isFake() public constant returns (bool) {
+    function isFake() condition(!votingOpened) public constant returns (bool) {
         return downvotes > upvotes;
     }
 

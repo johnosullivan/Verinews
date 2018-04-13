@@ -22,9 +22,10 @@ export class HomePage {
   privateKey: any;
   web3url = "http://localhost:8545";
   ipfsurl = "http://127.0.0.1:8080";
-  newManager = "0x8cdaf0cd259887258bc13a92c0a6da92698644c0";
+  newManager = "0x0b25cdb672e214acb36b153f2625df92236ab349";
   story_data = "";
   ipfs: any;
+  ether:any;
 
   newmanager_abi = [{ "constant": true, "inputs": [], "name": "numberOfNewsStories", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_news", "type": "string" }], "name": "addNews", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "", "type": "uint256" }], "name": "news_contracts", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": false, "name": "news", "type": "address" }, { "indexed": false, "name": "publisher", "type": "address" }], "name": "AddNews", "type": "event" }];
 
@@ -38,8 +39,8 @@ export class HomePage {
     public modalController: ModalController,
     public http: HttpClient) {
 
-    this.publicKey = "0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5";
-    this.privateKey = "aa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7";
+    this.publicKey = "";
+    this.privateKey = "";
 
     this.feed = [];
 
@@ -306,6 +307,10 @@ export class HomePage {
 
     var web3 = new Web3(provider);
     web3.eth.defaultAccount = publicKey;
+
+    web3.eth.getBalance(publicKey).then((user_ether) => {
+      this.ether = user_ether;
+    });
 
     var contract = new web3.eth.Contract(this.newmanager_abi, this.newManager);
 

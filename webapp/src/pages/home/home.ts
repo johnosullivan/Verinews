@@ -22,7 +22,7 @@ export class HomePage {
   privateKey: any;
   web3url = "http://localhost:8545";
   ipfsurl = "http://127.0.0.1:8080";
-  newManager = "0x0b25cdb672e214acb36b153f2625df92236ab349";
+  newManager = "0x0B25cDb672E214aCB36b153F2625DF92236aB349";
   story_data = "";
   ipfs: any;
   ether:any;
@@ -77,7 +77,6 @@ export class HomePage {
           "gasPrice": gasPriceHex,
           "gasLimit": gasLimitHex,
           "to": address,
-          "value": web3.utils.toHex(value),
           "data": myCallData
         };
 
@@ -245,15 +244,12 @@ export class HomePage {
         const gasPriceHex = web3.utils.toHex(gasPrice);
         const gasLimitHex = web3.utils.toHex(300000);
 
-        var value = web3.utils.toWei('1', 'ether');
-
         const rawTx = {
           "from": publicKey,
           "nonce": "0x" + nonce.toString(16),
           "gasPrice": gasPriceHex,
           "gasLimit": gasLimitHex,
           "to": address,
-          "value": web3.utils.toHex(value),
           "data": myCallData
         };
 

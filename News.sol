@@ -73,7 +73,7 @@ contract News is OwnerShip {
     }
 
     // Only is the voters has not voted they maybe upvote
-    function upvote(uint256 _datetime) onlyHasNotVoted public payable {
+    function upvote(uint256 _datetime) onlyHasNotVoted public {
         //require(_datetime > start_time);
         //require(_datetime > lastvoter_timestamp);
         if (_datetime < end_time) {
@@ -92,7 +92,7 @@ contract News is OwnerShip {
         gasPrice[msg.sender] = msg.gas;
     }
     // Only is the voters has not voted they maybe upvote
-    function downvote(uint256 _datetime) onlyHasNotVoted public payable {
+    function downvote(uint256 _datetime) onlyHasNotVoted public {
         //require(_datetime > start_time);
         //require(_datetime > lastvoter_timestamp);
         if (_datetime < end_time) {

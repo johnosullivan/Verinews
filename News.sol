@@ -110,8 +110,8 @@ contract News is OwnerShip {
     }
 
     // Gets the news details
-    function details() public constant returns (string _news,bool _voted, uint _balance) {
-        return (news,voters[msg.sender],address(this).balance);
+    function details() public constant returns (string _news,bool _voted, uint _balance,bool _votingOpened,bool _isFake) {
+        return (news,voters[msg.sender],address(this).balance, votingOpened,downvotes > upvotes);
     }
 
     function done() internal {

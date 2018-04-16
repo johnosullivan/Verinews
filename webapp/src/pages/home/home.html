@@ -44,10 +44,18 @@
 
 <ion-card *ngFor="let item of feed">
 
-  <ion-card-content>
-    <p>{{item.news}}</p>
-  </ion-card-content>
 
+  <ion-card-content>
+    <div *ngIf="!item.votingOpened">
+    <p style="color:red;" *ngIf="item.isFake">{{item.news}}</p>
+    <p style="color:green;" *ngIf="!item.isFake">{{item.news}}</p>
+    </div>
+    <div *ngIf="item.votingOpened">
+    <p>{{item.news}}</p>
+    </div>
+
+  </ion-card-content>
+<div *ngIf="item.votingOpened">
   <ion-row *ngIf="!item.voted">
     <ion-col>
       <button ion-button icon-right clear small (click)="vote('up',item.address)">
@@ -56,12 +64,9 @@
       <button ion-button icon-right clear small (click)="vote('down',item.address)">
         <ion-icon name="thumbs-down"></ion-icon>
       </button>
-      <button ion-button icon-right clear small (click)="done(item.address)">
-        done
-      </button>
     </ion-col>
   </ion-row>
-
+</div>
 </ion-card>
   </ion-list>
 </ion-content>

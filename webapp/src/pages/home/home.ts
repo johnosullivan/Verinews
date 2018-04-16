@@ -22,7 +22,7 @@ export class HomePage {
   privateKey: any;
   web3url = "http://localhost:8545";
   ipfsurl = "http://127.0.0.1:8080";
-  newManager = "0xF328562506F371C7f5465df925D1A8605bcEe297";
+  newManager = "0x8580AeE5443f07faE5b2820415e05Bb6F3935160";
   story_data = "";
   ipfs: any;
   ether:any;
@@ -38,7 +38,7 @@ export class HomePage {
     public modalController: ModalController,
     public http: HttpClient) {
 
-    this.publicKey = "0x901473eE8ac77F0967aD3D0Ac2943d4f27668a7f";
+    this.publicKey = "0x1c1e61ec8c521c2fb88f173f7c47fe525e7a8a04";
     this.privateKey = "";
 
     this.feed = [];
@@ -156,7 +156,11 @@ export class HomePage {
 
         var privateKey = new Buffer(this.privateKey, 'hex')
         var publicKey = this.publicKey;
-        const provider = new Web3.providers.HttpProvider(this.web3url);
+
+        //const provider = new Web3.providers.HttpProvider(this.web3url);
+        //const provider = new Web3(web3.currentProvider);
+        const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/");
+
         var web3 = new Web3(provider);
         web3.eth.defaultAccount = publicKey;
 
@@ -220,7 +224,11 @@ export class HomePage {
   vote(type, address) {
     var privateKey = new Buffer(this.privateKey, 'hex')
     var publicKey = this.publicKey;
-    const provider = new Web3.providers.HttpProvider(this.web3url);
+
+    //const provider = new Web3.providers.HttpProvider(this.web3url);
+    //const provider = new Web3(web3.currentProvider);
+    const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/");
+
     var web3 = new Web3(provider);
     web3.eth.defaultAccount = publicKey;
     var contract = new web3.eth.Contract(this.news_abi, address);
@@ -244,7 +252,7 @@ export class HomePage {
         const gasPriceHex = web3.utils.toHex(gasPrice);
         const gasLimitHex = web3.utils.toHex(300000);
 
-        var value = web3.utils.toWei('1', 'ether');
+        var value = web3.utils.toWei('0.1', 'ether');
 
         const rawTx = {
           "from": publicKey,
@@ -302,7 +310,9 @@ export class HomePage {
     console.log("Fetching Feed...");
     var publicKey = this.publicKey;
 
-    const provider = new Web3.providers.HttpProvider(this.web3url);
+    //const provider = new Web3.providers.HttpProvider(this.web3url);
+    //const provider = new Web3(web3.currentProvider);
+    const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/");
 
     var web3 = new Web3(provider);
     web3.eth.defaultAccount = publicKey;

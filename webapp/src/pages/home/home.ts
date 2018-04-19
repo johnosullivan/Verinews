@@ -252,7 +252,7 @@ export class HomePage {
         const gasPriceHex = web3.utils.toHex(gasPrice);
         const gasLimitHex = web3.utils.toHex(300000);
 
-        var value = web3.utils.toWei('0.1', 'ether');
+        var value = web3.utils.toWei('1', 'ether');
 
         const rawTx = {
           "from": publicKey,

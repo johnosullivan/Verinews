@@ -128,6 +128,10 @@ contract News is OwnerShip {
             }
         } else {
             //false news
+            uint256 valuea = address(this).balance / downvotes;
+            for(uint ia = 0; i < downvotes; i++){
+                downvoters[ia].transfer(valuea);
+            }
         }
 
         //Money logic needs to be added

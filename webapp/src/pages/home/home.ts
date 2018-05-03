@@ -22,7 +22,7 @@ export class HomePage {
   privateKey: any;
   web3url = "http://localhost:8545";
   ipfsurl = "http://127.0.0.1:8080";
-  newManager = "0x8580AeE5443f07faE5b2820415e05Bb6F3935160";
+  newManager = "0x3ddfE111B39772651C0a1d1f90Ca8f60c1cF94Ce";
   story_data = "";
   ipfs: any;
   ether:any;
